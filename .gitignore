@@ -1,0 +1,10 @@
+# Ignore SQLite DB file
+db.sqlite3
+
+
+# Ignore Python Cache Files 
+__pycache__/
+*.pyc
+
+# ignore venv
+TDLenv/
