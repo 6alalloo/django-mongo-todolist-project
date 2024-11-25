@@ -1,0 +1,18 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Tasks{% endblock %}
+
+{% block content %}
+<h1>Tasks</h1>
+<ul class="list-group">
+    {% for task in tasks %}
+    <li class="list-group-item">
+        <strong>{{ task.title }}</strong>
+        <span class="badge bg-primary">{{ task.priority }}</span>
+        <span class="text-muted">Due: {{ task.due_date }}</span>
+    </li>
+    {% empty %}
+    <li class="list-group-item text-muted">No tasks available.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
