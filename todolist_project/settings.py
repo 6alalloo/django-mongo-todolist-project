@@ -77,10 +77,13 @@ WSGI_APPLICATION = 'todolist_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'todolist_db',
+        'NAME': 'TDLdb',  # Replace with your desired database name
+        'CLIENT': {
+            'host': 'localhost',
+            'port': 27017,
     }
+            }
 }
-
 
 
 # Password validation

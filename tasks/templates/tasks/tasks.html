@@ -1,6 +1,6 @@
 {% extends 'tasks/base.html' %}
 
-{% block title %}Tasks{% endblock %}
+{% block title %}tasks{% endblock %}
 
 {% block content %}
 <h1>Tasks</h1>
@@ -9,7 +9,12 @@
     <li class="list-group-item">
         <strong>{{ task.title }}</strong>
         <span class="badge bg-primary">{{ task.priority }}</span>
-        <span class="text-muted">Due: {{ task.due_date }}</span>
+        <span class="text-muted">Due: {{ task.due_datetime|date:"M d, Y H:i" }}</span>
+        {% if task.user %}
+        <span>Assigned to: {{ task.user.username }}</span>
+        {% else %}
+        <span class="text-danger">Unassigned</span>
+        {% endif %}
     </li>
     {% empty %}
     <li class="list-group-item text-muted">No tasks available.</li>

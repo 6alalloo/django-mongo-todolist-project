@@ -1,15 +1,14 @@
 from django.shortcuts import render
+from tasks.models import Task
+from django.contrib.auth.decorators import login_required
 
 def home(request):
     return render(request, 'tasks/home.html')
 
+@login_required
 def tasks_view(request):
-    # Example task data
-    tasks = [
-        {"title": "Finish Django Project", "priority": "High", "due_date": "2024-12-01"},
-        {"title": "Team Meeting", "priority": "Medium", "due_date": "2024-12-05"},
-        {"title": "Submit Report", "priority": "Low", "due_date": "2024-12-10"},
-    ]
+    
+    tasks = Task.objects.filter(user=request.user)
     return render(request, 'tasks/tasks.html', {"tasks": tasks})
 
 def calendar_view(request):
