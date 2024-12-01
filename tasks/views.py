@@ -6,6 +6,8 @@ from tasks.forms import TaskForm
 from django.urls import reverse
 from django.http import HttpResponseForbidden  
 from django.db import connection
+from django.http import JsonResponse
+
 
 def home(request):
     return render(request, 'tasks/home.html')
@@ -73,3 +75,17 @@ class CustomLoginView(LoginView):
 
     def get_success_url(self):
         return reverse('tasks')
+    
+def calendar_data(request):
+    tasks = Task.objects.filter(user=request.user) if not request.user.profile.is_manager else Task.objects.all()
+    events = []
+
+    for task in tasks:
+        events.append({
+            'title': task.title,
+            'start': task.due_datetime.isoformat(),  # Format date for FullCalendar
+            'url': f"/tasks/{task.id}/",  # Link to the task detail page
+            'color': 'red' if task.priority == 'High' else 'blue',
+        })
+
+    return JsonResponse(events, safe=False)

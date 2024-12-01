@@ -20,6 +20,7 @@ urlpatterns = [
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', custom_logout, name='logout'),
     path('tasks/<int:pk>/delete/', task_delete_view, name='task_delete'),
+    path('calendar/data/', views.calendar_data, name='calendar_data'),
 ]
 
 

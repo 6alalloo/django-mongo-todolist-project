@@ -1,8 +1,6 @@
-
-
 {% extends 'tasks/base.html' %}
 
-{% block title %}Calendar{% endblock %}
+{% block title %}Task Calendar{% endblock %}
 
 {% block content %}
 {% if not user.is_authenticated %}
@@ -11,7 +9,31 @@
 </p>
 <a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Login</a>
 {% endif %}
-<h1>Task Calendar</h1>
-<p>Here will be the calendar integration!</p>
 
+<h1>Task Calendar</h1>
+<div id="calendar"></div>
+
+<!-- FullCalendar Script -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',  // Default calendar view
+            events: '/calendar/data/',   // Fetch events dynamically from JSON endpoint
+            headerToolbar: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay'
+            },
+            eventClick: function(info) {
+                info.jsEvent.preventDefault();  // Prevent default click behavior
+                if (info.event.url) {
+                    window.location.href = info.event.url;  // Navigate to task detail
+                }
+            }
+        });
+
+        calendar.render();
+    });
+</script>
 {% endblock %}
