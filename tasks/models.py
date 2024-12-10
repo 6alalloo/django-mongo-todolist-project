@@ -26,7 +26,8 @@ class Task(models.Model):
     on_delete=models.SET_NULL,  # Set user to NULL when the user is deleted
     null=True,  # Allow NULL values
     blank=True
-    )# Allow this field to be empty in forms
+    )
+    is_department_task = models.BooleanField(default=False)# Allow this field to be empty in forms
     created_by = models.ForeignKey(
     'auth.User',
     on_delete=models.CASCADE,
@@ -34,8 +35,11 @@ class Task(models.Model):
     null=True,
     blank=True,
 )
+    
     def __str__(self):
         return self.title
+    def task_type(self):
+        return "Department-Wide" if self.is_department_task else "User-Specific"
 class Department(models.Model):
     name = models.CharField(max_length=100)
 

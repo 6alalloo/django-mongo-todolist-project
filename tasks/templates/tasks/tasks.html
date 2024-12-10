@@ -1,6 +1,6 @@
 {% extends 'tasks/base.html' %}
 
-{% block title %}tasks{% endblock %}
+{% block title %}Tasks{% endblock %}
 
 {% block content %}
 <h1>Tasks</h1>
@@ -18,17 +18,25 @@
         <a href="{% url 'task_detail' task.id %}" class="text-decoration-none">
             <strong>{{ task.title }}</strong>
         </a>
+        
+        <!-- Department-wide task badge -->
+        {% if task.is_department_task %}
+        <span class="badge bg-info text-dark">Department-Wide</span>
+        {% endif %}
+        
         <span class="badge bg-primary">{{ task.priority }}</span>
         <span class="text-muted">Due: {{ task.due_datetime|date:"M d, Y H:i" }}</span>
+        
         {% if task.user %}
         <span>Assigned to: {{ task.user.username }}</span>
         {% else %}
         <span class="text-danger">Unassigned</span>
         {% endif %}
+        
         <div class="mt-2">
             <a href="{% url 'task_edit' task.id %}" class="btn btn-sm btn-warning">Edit</a>
             
-            <!-- Delete button logic using can_delete -->
+            <!-- Delete button logic -->
             {% if task.can_delete %}
             <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
                 {% csrf_token %}

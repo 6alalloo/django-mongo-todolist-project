@@ -10,7 +10,9 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.shortcuts import redirect
 from django.contrib.auth import logout
-
+from django.contrib.auth.models import User
+from django.db import models
+from djongo import models
 
 def home(request):
     return render(request, 'tasks/home.html')
@@ -34,7 +36,7 @@ def tasks_view(request):
             (user.profile.is_manager and task.department == user.profile.department)
         )
 
-    return render(request, 'tasks/tasks.html', {'tasks': tasks})
+    return render(request, 'tasks/tasks.html', {'tasks': tasks}) 
 
 
 @login_required
@@ -87,12 +89,21 @@ def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
 
     # Permission logic:
-    if task.user == request.user or (request.user.profile.is_manager and task.department == request.user.profile.department):
-        task.delete()
-        messages.success(request, "Task deleted successfully!")
-        return redirect('tasks')  # Redirect to the tasks page
+    if task.is_department_task:
+        # Only managers can delete department-wide tasks
+        if not request.user.profile.is_manager or task.department != request.user.profile.department:
+            return HttpResponseForbidden("You don't have permission to delete this department-wide task.")
     else:
-        return HttpResponseForbidden("You don't have permission to   this task.")
+        # Normal deletion logic for user-specific tasks
+        if task.user != request.user and (
+            not request.user.profile.is_manager or task.department != request.user.profile.department
+        ):
+            return HttpResponseForbidden("You don't have permission to delete this task.")
+
+    # If all conditions are met, delete the task
+    task.delete()
+    messages.success(request, "Task deleted successfully!")
+    return redirect('tasks')
 class CustomLoginView(LoginView):
     template_name = 'tasks/login.html'
 

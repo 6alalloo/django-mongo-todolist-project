@@ -7,7 +7,7 @@ from django.forms.widgets import DateTimeInput
 class TaskForm(forms.ModelForm):
     class Meta:
         model = Task
-        fields = ['title', 'description', 'priority', 'status', 'due_datetime', 'department', 'user']
+        fields = ['title', 'description', 'priority', 'status', 'due_datetime', 'department', 'user', 'is_department_task']
         widgets = {
             'due_datetime': DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }
@@ -16,17 +16,21 @@ class TaskForm(forms.ModelForm):
         self.user = kwargs.pop('user', None)  # Get the logged-in user
         super().__init__(*args, **kwargs)
 
-        # Limit department options for the logged-in user
         if self.user and not self.user.profile.is_manager:
             # Normal users see only their own department
             self.fields['department'].queryset = Department.objects.filter(id=self.user.profile.department.id)
+            self.fields['is_department_task'].widget = forms.HiddenInput()  # Hide department-wide field for normal users
         elif self.user:
             # Managers see all departments
             self.fields['department'].queryset = Department.objects.all()
 
-        # Normal users should not see the 'user' field
+        # Hide the 'user' field for normal users
         if self.user and not self.user.profile.is_manager:
             self.fields['user'].widget = forms.HiddenInput()
+
+        # Only show the 'is_department_task' field to managers
+        if self.user and not self.user.profile.is_manager:
+            self.fields['is_department_task'].widget = forms.HiddenInput()
 
     def clean_user(self):
         user = self.cleaned_data.get('user')
