@@ -7,6 +7,9 @@ from django.urls import reverse
 from django.http import HttpResponseForbidden  
 from django.db import connection
 from django.http import JsonResponse
+from django.contrib import messages
+from django.shortcuts import redirect
+from django.contrib.auth import logout
 
 
 def home(request):
@@ -15,12 +18,22 @@ def home(request):
 @login_required
 def tasks_view(request):
     user = request.user
+
+    # Fetch tasks based on user role
     if user.profile.is_manager:
         # Managers see all tasks in their department
         tasks = Task.objects.filter(department=user.profile.department)
     else:
         # Regular users see only their own tasks
         tasks = Task.objects.filter(user=user)
+    
+    # Add a flag to indicate if the user can delete the task
+    for task in tasks:
+        task.can_delete = (
+            task.user == user or 
+            (user.profile.is_manager and task.department == user.profile.department)
+        )
+
     return render(request, 'tasks/tasks.html', {'tasks': tasks})
 
 
@@ -33,7 +46,11 @@ def signup_view(request):
 @login_required
 def task_detail_view(request, pk):
     task = get_object_or_404(Task, pk=pk)
-    return render(request, 'tasks/task_detail.html', {'task': task})
+    can_delete = (
+        task.user == request.user or 
+        (request.user.profile.is_manager and task.department == request.user.profile.department)
+    )
+    return render(request, 'tasks/task_detail.html', {'task': task, 'can_delete': can_delete})
 @login_required
 def task_create_view(request):
     if request.method == 'POST':
@@ -61,15 +78,21 @@ def task_edit_view(request, pk):
             return redirect('tasks')  # Redirect to the task list page
     else:
         form = TaskForm(instance=task)
-    return render(request, 'tasks/task_form.html', {'form': form, 'action': 'Edit'})
-def task_delete_view(request, pk):
+        can_delete = (
+        task.user == request.user or 
+        (request.user.profile.is_manager and task.department == request.user.profile.department)
+    )
+    return render(request, 'tasks/task_form.html', {'form': form, 'task': task, 'action': 'Edit', 'can_delete': can_delete})
+def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
 
-    if request.user == task.user or (request.user.profile.is_manager and task.department == request.user.profile.department):
+    # Permission logic:
+    if task.user == request.user or (request.user.profile.is_manager and task.department == request.user.profile.department):
         task.delete()
-        return redirect('tasks')
+        messages.success(request, "Task deleted successfully!")
+        return redirect('tasks')  # Redirect to the tasks page
     else:
-        return HttpResponseForbidden("You are not allowed to delete this task.")
+        return HttpResponseForbidden("You don't have permission to   this task.")
 class CustomLoginView(LoginView):
     template_name = 'tasks/login.html'
 
@@ -89,3 +112,8 @@ def calendar_data(request):
         })
 
     return JsonResponse(events, safe=False)
+
+def custom_logout(request):
+    messages.success(request, "You have been logged out.")
+    logout(request)
+    return redirect('login')

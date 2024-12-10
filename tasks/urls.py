@@ -1,13 +1,11 @@
 from django.urls import path
 from . import views
-from .views import CustomLoginView, task_delete_view
+from .views import CustomLoginView, custom_logout
 from django.contrib.auth.views import LogoutView
-from django.contrib import messages
-from django.shortcuts import redirect
+from tasks.views import delete_task
 
-def custom_logout(request):
-    messages.success(request, "You have been logged out.")
-    return redirect('login')
+
+
 
 urlpatterns = [
     path('',views.home, name='home'),
@@ -19,8 +17,8 @@ urlpatterns = [
     path('tasks/<int:pk>/edit/', views.task_edit_view, name='task_edit'),
     path('login/', CustomLoginView.as_view(), name='login'),
     path('logout/', custom_logout, name='logout'),
-    path('tasks/<int:pk>/delete/', task_delete_view, name='task_delete'),
     path('calendar/data/', views.calendar_data, name='calendar_data'),
+    path('tasks/<int:pk>/delete/', delete_task, name='delete_task'),
 ]
 
 
