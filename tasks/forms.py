@@ -2,6 +2,8 @@ from django import forms
 from .models import Task
 from users.models import Department  # Ensure you import the correct Department model
 from django.forms.widgets import DateTimeInput
+from django.contrib.auth.models import User
+from django.contrib.auth.forms import UserCreationForm
 
 
 class TaskForm(forms.ModelForm):
@@ -37,4 +39,29 @@ class TaskForm(forms.ModelForm):
         if self.user and self.user.profile.is_manager:
             if user and user.profile.department != self.user.profile.department:
                 raise forms.ValidationError("You can only assign tasks to users in your department.")
+        return user
+
+class SignupForm(UserCreationForm):
+    email = forms.EmailField(required=True)
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(), 
+        required=False, 
+        empty_label="None", 
+        label="Department"
+    )
+    is_manager = forms.BooleanField(required=False, label="Is Department Manager?")
+
+    class Meta:
+        model = User
+        fields = ['username', 'email', 'password1', 'password2', 'department', 'is_manager']
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        if commit:
+            user.save()
+            # Custom logic to link department and manager status
+            profile = user.profile  # Assuming a OneToOne field to Profile
+            profile.department = self.cleaned_data['department']
+            profile.is_manager = self.cleaned_data['is_manager']
+            profile.save()
         return user

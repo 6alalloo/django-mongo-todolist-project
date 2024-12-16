@@ -16,6 +16,8 @@ from djongo import models
 from tasks.models import Notification
 from pymongo import MongoClient
 from django.forms.models import model_to_dict
+from .forms import SignupForm
+from django.contrib.auth import login
 
 
 
@@ -200,3 +202,16 @@ def notification_detail(request, pk):
     else:
         messages.error(request, "Task not found for this notification.")
         return redirect('notifications')
+    
+    
+
+def signup_view(request):
+    if request.method == 'POST':
+        form = SignupForm(request.POST)
+        if form.is_valid():
+            user = form.save()
+            login(request, user)
+            return redirect('tasks')  # Redirect to tasks
+    else:
+        form = SignupForm()
+    return render(request, 'tasks/signup.html', {'form': form})    

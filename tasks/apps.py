@@ -13,3 +13,8 @@ class TasksConfig(AppConfig):
     def ready(self):
         import tasks.signals
 
+class UsersConfig(AppConfig):
+    name = 'users'
+
+    def ready(self):
+        import users.signals
