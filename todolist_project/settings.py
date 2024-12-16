@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'tasks',
     'users',
-    'django_q',
 ]
 
 MIDDLEWARE = [
@@ -146,10 +145,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 #     },
 # } 
 
-Q_CLUSTER = {
-    'name': 'myproject',
-    'workers': 2,
-    'timeout': 60,
-    'retry': 120,
-    'orm': 'default'
-}
+

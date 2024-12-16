@@ -62,24 +62,30 @@ def task_detail_view(request, pk):
 @login_required
 def task_create_view(request):
     if request.method == 'POST':
-        form = TaskForm(request.POST, user=request.user)  # Pass user to form
+        form = TaskForm(request.POST, user=request.user)
         if form.is_valid():
             task = form.save(commit=False)
-            task.created_by = request.user
+
+            # Automatically assign the logged-in user for normal users
+            if not request.user.profile.is_manager:
+                task.user = request.user
+
+            task.created_by = request.user  # Log who created the task
             task.save()
 
-            # Convert task to dictionary before saving to Notification
-            task_data = model_to_dict(task, fields=[field.name for field in task._meta.fields])
-            
-            Notification.objects.create(
-                user=task.user,
-                title="New Task Assigned",
-                message=f"You have been assigned a new task: {task.title}.",
-                task=task  # Pass the actual Task instance
-            )
+            # Create notification for the assigned user
+            if task.user:  # Ensure the task has an assigned user
+                Notification.objects.create(
+                    user=task.user,
+                    title="New Task Assigned",
+                    message=f"You have been assigned a new task: {task.title}.",
+                    task_id=task.id,
+                )
+
             return redirect('tasks')
     else:
         form = TaskForm(user=request.user)
+
     return render(request, 'tasks/task_form.html', {'form': form})
 
 @login_required

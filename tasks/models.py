@@ -52,9 +52,9 @@ class Notification(models.Model):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True)
-    changes = models.JSONField(null=True, blank=True)
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True)  # This line
     
+
     class Meta:
         indexes = [
             models.Index(fields=['user', 'is_read']),
