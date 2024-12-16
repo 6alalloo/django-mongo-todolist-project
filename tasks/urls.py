@@ -3,6 +3,7 @@ from . import views
 from .views import CustomLoginView, custom_logout
 from django.contrib.auth.views import LogoutView
 from tasks.views import delete_task
+from tasks.views import notifications_view
 
 
 
@@ -19,6 +20,9 @@ urlpatterns = [
     path('logout/', custom_logout, name='logout'),
     path('calendar/data/', views.calendar_data, name='calendar_data'),
     path('tasks/<int:pk>/delete/', delete_task, name='delete_task'),
+    path('notifications/', views.notifications_view, name='notifications'),
+    path('notifications/unread-count/', views.notifications_unread_count, name='notifications_unread_count'),
+    path('notifications/<int:pk>/', views.notification_detail, name='notification_detail'),
 ]
 
 

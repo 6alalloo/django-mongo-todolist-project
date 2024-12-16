@@ -1,0 +1,22 @@
+{% extends 'tasks/base.html' %}
+{% block content %}
+<h2>{{ notification.title }}</h2>
+<p>{{ notification.message }}</p>
+<p><strong>Created At:</strong> {{ notification.created_at }}</p>
+
+{% if changes %}
+    <h4>Changes:</h4>
+    <ul>
+        {% for field, values in changes.items %}
+            <li>
+                <strong>{{ field|capfirst }}:</strong> 
+                Before: "{{ values.before }}" → After: "{{ values.after }}"
+            </li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+{% if task %}
+    <a href="{% url 'task_detail' task.pk %}" class="btn btn-primary">View Task</a>
+{% endif %}
+{% endblock %}

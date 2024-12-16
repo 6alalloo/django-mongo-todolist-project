@@ -13,6 +13,11 @@ from django.contrib.auth import logout
 from django.contrib.auth.models import User
 from django.db import models
 from djongo import models
+from tasks.models import Notification
+from pymongo import MongoClient
+from django.forms.models import model_to_dict
+
+
 
 def home(request):
     return render(request, 'tasks/home.html')
@@ -53,37 +58,54 @@ def task_detail_view(request, pk):
         (request.user.profile.is_manager and task.department == request.user.profile.department)
     )
     return render(request, 'tasks/task_detail.html', {'task': task, 'can_delete': can_delete})
+
 @login_required
 def task_create_view(request):
     if request.method == 'POST':
-        form = TaskForm(request.POST, user=request.user)
+        form = TaskForm(request.POST, user=request.user)  # Pass user to form
         if form.is_valid():
             task = form.save(commit=False)
-
-            # Automatically assign the logged-in user for normal users
-            if not request.user.profile.is_manager:
-                task.user = request.user
-
+            task.created_by = request.user
             task.save()
+
+            # Convert task to dictionary before saving to Notification
+            task_data = model_to_dict(task, fields=[field.name for field in task._meta.fields])
+            
+            Notification.objects.create(
+                user=task.user,
+                title="New Task Assigned",
+                message=f"You have been assigned a new task: {task.title}.",
+                task=task  # Pass the actual Task instance
+            )
             return redirect('tasks')
     else:
         form = TaskForm(user=request.user)
-
     return render(request, 'tasks/task_form.html', {'form': form})
+
 @login_required
 def task_edit_view(request, pk):
     task = get_object_or_404(Task, pk=pk)
     if request.method == 'POST':
         form = TaskForm(request.POST, instance=task)
         if form.is_valid():
-            form.save()
+            updated_task = form.save()
+
+            # Notify the user about task updates
+            if updated_task.user:  # Ensure the task has an assigned user
+                Notification.objects.create(
+                    user=updated_task.user,
+                    title="Task Updated",
+                    message=f"The task '{updated_task.title}' has been updated.",
+                    task=updated_task,
+                )
+
             return redirect('tasks')  # Redirect to the task list page
     else:
         form = TaskForm(instance=task)
         can_delete = (
-        task.user == request.user or 
-        (request.user.profile.is_manager and task.department == request.user.profile.department)
-    )
+            task.user == request.user or 
+            (request.user.profile.is_manager and task.department == request.user.profile.department)
+        )
     return render(request, 'tasks/task_form.html', {'form': form, 'task': task, 'action': 'Edit', 'can_delete': can_delete})
 def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
@@ -128,3 +150,47 @@ def custom_logout(request):
     messages.success(request, "You have been logged out.")
     logout(request)
     return redirect('login')
+
+@login_required
+def notifications_view(request):
+    # Fetch notifications for the logged-in user
+    notifications = Notification.objects.filter(user=request.user).order_by('-created_at')
+
+    # Mark notifications as read if user clicks "Mark All as Read"
+    if request.method == 'POST' and 'mark_as_read' in request.POST:
+        notifications.update(is_read=True)
+        return redirect('notifications')
+
+    return render(request, 'tasks/notifications.html', {'notifications': notifications})
+
+@login_required
+def notifications_unread_count(request):
+    # Connect to MongoDB
+    client = MongoClient("localhost", 27017)
+    database = client['TDLdb']
+    
+    # Access the tasks_notification collection
+    notifications_collection = database['tasks_notification']
+    
+    # Query for unread notifications
+    unread_count = notifications_collection.count_documents({
+        'user_id': request.user.id,
+        'is_read': False
+    })
+    
+    return JsonResponse({'unread_count': unread_count})
+
+@login_required
+def notification_detail(request, pk):
+    notification = get_object_or_404(Notification, id=pk, user=request.user)
+
+    if not notification.is_read:
+        notification.is_read = True
+        notification.save()
+
+# Ensure task exists before redirecting
+    if notification.task:
+        return redirect('task_detail', pk=notification.task.id)
+    else:
+        messages.error(request, "Task not found for this notification.")
+        return redirect('notifications')

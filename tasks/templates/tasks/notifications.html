@@ -1,0 +1,26 @@
+{% extends 'tasks/base.html' %}
+
+{% block title %}Notifications{% endblock %}
+
+{% block content %}
+<h1>Notifications</h1>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit" name="mark_as_read" class="btn btn-primary mb-3">Mark All as Read</button>
+</form>
+
+<ul class="list-group">
+    {% for notification in notifications %}
+        <li class="list-group-item {% if not notification.is_read %}list-group-item-warning{% endif %}">
+            <a href="{% url 'notification_detail' notification.pk %}" 
+                class="text-decoration-none {% if not notification.is_read %}fw-bold{% endif %}">
+                {{ notification.title }}
+            </a>
+            <small class="text-muted"> - {{ notification.created_at|date:"M d, Y H:i" }}</small>
+        </li>
+    {% empty %}
+        <li class="list-group-item">No notifications.</li>
+    {% endfor %}
+</ul>
+{% endblock %}
