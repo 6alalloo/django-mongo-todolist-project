@@ -18,7 +18,7 @@ from pymongo import MongoClient
 from django.forms.models import model_to_dict
 from .forms import SignupForm
 from django.contrib.auth import login
-
+from django.views.decorators.http import require_POST
 
 
 def home(request):
@@ -28,22 +28,60 @@ def home(request):
 def tasks_view(request):
     user = request.user
 
-    # Fetch tasks based on user role
+    # Base queryset
     if user.profile.is_manager:
-        # Managers see all tasks in their department
         tasks = Task.objects.filter(department=user.profile.department)
     else:
-        # Regular users see only their own tasks
         tasks = Task.objects.filter(user=user)
-    
-    # Add a flag to indicate if the user can delete the task
-    for task in tasks:
+
+    # Filters
+    priority_filter = request.GET.get('priority')
+    status_filter = request.GET.get('status')
+    department_task_filter = request.GET.get('department_task')
+    sort_by = request.GET.get('sort')
+    search_query = request.GET.get('q')
+
+    # Apply priority and status filters (these work fine)
+    if priority_filter:
+        tasks = tasks.filter(priority=priority_filter)
+    if status_filter:
+        tasks = tasks.filter(status=status_filter)
+
+    # Apply search query
+    if search_query:
+        tasks = tasks.filter(title__icontains=search_query)
+
+    # Fetch all tasks first before filtering on is_department_task
+    tasks_list = list(tasks)  # Convert to a list to filter in Python
+
+    if department_task_filter is not None:
+        if department_task_filter == "true":
+            tasks_list = [task for task in tasks_list if task.is_department_task]
+        elif department_task_filter == "false":
+            tasks_list = [task for task in tasks_list if not task.is_department_task]
+
+    # Apply sorting
+    if sort_by:
+        reverse = sort_by.startswith('-')
+        sort_key = sort_by.lstrip('-')
+        tasks_list = sorted(tasks_list, key=lambda x: getattr(x, sort_key, ''), reverse=reverse)
+
+    # Add delete permissions
+    for task in tasks_list:
         task.can_delete = (
             task.user == user or 
             (user.profile.is_manager and task.department == user.profile.department)
         )
 
-    return render(request, 'tasks/tasks.html', {'tasks': tasks}) 
+    return render(request, 'tasks/tasks.html', {
+        'tasks': tasks_list,
+        'priority_filter': priority_filter,
+        'status_filter': status_filter,
+        'department_task_filter': department_task_filter,
+        'sort_by': sort_by,
+        'search_query': search_query
+    })
+
 
 
 @login_required
@@ -215,3 +253,23 @@ def signup_view(request):
     else:
         form = SignupForm()
     return render(request, 'tasks/signup.html', {'form': form})    
+
+@login_required
+@require_POST
+def complete_task(request, pk):
+    task = get_object_or_404(Task, pk=pk)
+
+    # Permission check
+    if task.user != request.user and (
+        not request.user.profile.is_manager or task.department != request.user.profile.department
+    ):
+        return HttpResponseForbidden("You don't have permission to complete this task.")
+
+    # Update task status
+    task.status = 'Completed'
+    task.save()
+
+    # Add a success message
+    messages.success(request, f"Task '{task.title}' has been marked as completed.")
+
+    return redirect('tasks')

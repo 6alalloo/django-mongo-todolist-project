@@ -1,53 +1,115 @@
 {% extends 'tasks/base.html' %}
-
 {% block title %}Tasks{% endblock %}
-
 {% block content %}
 <h1>Tasks</h1>
 
-{% if not user.is_authenticated %}
-<p class="text-warning">
-    Login to be able to see "{{ view.title|default:request.path|title }}".
-</p>
-<a href="{% url 'login' %}?next={{ request.path }}" class="btn btn-primary">Login</a>
-{% else %}
-<a href="{% url 'task_create' %}" class="btn btn-success mb-3">Create New Task</a>
-<ul class="list-group">
+<!-- Search Bar -->
+<form method="get" class="mb-3">
+    <div class="input-group">
+        <input type="text" name="q" value="{{ search_query }}" class="form-control" placeholder="Search tasks...">
+        <button type="submit" class="btn btn-primary">Search</button>
+    </div>
+</form>
+
+<!-- Filter & Sort Options -->
+<form method="get" class="mb-3">
+    <div class="row">
+        <!-- Priority Filter -->
+        <div class="col-md-2">
+            <select name="priority" class="form-select">
+                <option value="">Filter by Priority</option>
+                <option value="Low" {% if priority_filter == "Low" %}selected{% endif %}>Low</option>
+                <option value="Medium" {% if priority_filter == "Medium" %}selected{% endif %}>Medium</option>
+                <option value="High" {% if priority_filter == "High" %}selected{% endif %}>High</option>
+            </select>
+        </div>
+
+        <!-- Status Filter -->
+        <div class="col-md-2">
+            <select name="status" class="form-select">
+                <option value="">Filter by Status</option>
+                <option value="Pending" {% if status_filter == "Pending" %}selected{% endif %}>Pending</option>
+                <option value="In Progress" {% if status_filter == "In Progress" %}selected{% endif %}>In Progress</option>
+                <option value="Completed" {% if status_filter == "Completed" %}selected{% endif %}>Completed</option>
+            </select>
+        </div>
+
+        <!-- Department-Wide Filter -->
+        <div class="col-md-3">
+            <select name="department_task" class="form-select">
+                <option value="">Filter by Task Type</option>
+                <option value="true" {% if department_task_filter == "true" %}selected{% endif %}>Department-Wide</option>
+                <option value="false" {% if department_task_filter == "false" %}selected{% endif %}>User-Specific</option>
+            </select>
+        </div>
+
+        <!-- Sort Options -->
+        <div class="col-md-3">
+            <select name="sort" class="form-select">
+                <option value="">Sort by</option>
+                <option value="title" {% if sort_by == "title" %}selected{% endif %}>Title (A-Z)</option>
+                <option value="-title" {% if sort_by == "-title" %}selected{% endif %}>Title (Z-A)</option>
+                <option value="due_datetime" {% if sort_by == "due_datetime" %}selected{% endif %}>Due Date (Earliest)</option>
+                <option value="-due_datetime" {% if sort_by == "-due_datetime" %}selected{% endif %}>Due Date (Latest)</option>
+            </select>
+        </div>
+
+        <!-- Apply & Reset Buttons -->
+        <div class="col-md-2">
+            <button type="submit" class="btn btn-success">Apply</button>
+            <a href="{% url 'tasks' %}" class="btn btn-secondary">Reset</a>
+        </div>
+    </div>
+
+    <!-- Hidden fields to persist search query -->
+    {% if search_query %}
+    <input type="hidden" name="q" value="{{ search_query }}">
+    {% endif %}
+</form>
+
+<!-- Uncompleted Tasks -->
+<h3>Pending Tasks</h3>
+<ul class="list-group mb-4">
     {% for task in tasks %}
+    {% if task.status != 'Completed' %}
     <li class="list-group-item">
-        <a href="{% url 'task_detail' task.id %}" class="text-decoration-none">
-            <strong>{{ task.title }}</strong>
-        </a>
-        
-        <!-- Department-wide task badge -->
-        {% if task.is_department_task %}
-        <span class="badge bg-info text-dark">Department-Wide</span>
-        {% endif %}
-        
-        <span class="badge bg-primary">{{ task.priority }}</span>
-        <span class="text-muted">Due: {{ task.due_datetime|date:"M d, Y H:i" }}</span>
-        
-        {% if task.user %}
-        <span>Assigned to: {{ task.user.username }}</span>
-        {% else %}
-        <span class="text-danger">Unassigned</span>
-        {% endif %}
-        
-        <div class="mt-2">
-            <a href="{% url 'task_edit' task.id %}" class="btn btn-sm btn-warning">Edit</a>
-            
-            <!-- Delete button logic -->
-            {% if task.can_delete %}
-            <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-            </form>
-            {% endif %}
+        <div class="d-flex justify-content-between align-items-center">
+            <a href="{% url 'task_detail' task.id %}" class="text-decoration-none">
+                <strong>{{ task.title }}</strong> - {{ task.due_datetime|date:"M d, Y H:i" }}
+            </a>
+            <div>
+                <!-- Complete Button -->
+                <form action="{% url 'complete_task' task.id %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to mark this task as completed?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                </form>
+                <a href="{% url 'task_edit' task.id %}" class="btn btn-sm btn-warning">Edit</a>
+                <form action="{% url 'delete_task' task.id %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to delete this task?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                </form>
+            </div>
         </div>
     </li>
+    {% endif %}
     {% empty %}
     <li class="list-group-item text-muted">No tasks available.</li>
     {% endfor %}
 </ul>
-{% endif %}
+
+<!-- Completed Tasks -->
+<h3>Completed Tasks</h3>
+<ul class="list-group">
+    {% for task in tasks %}
+    {% if task.status == 'Completed' %}
+    <li class="list-group-item text-muted" style="background-color: #f8f9fa;">
+        <a href="{% url 'task_detail' task.id %}" class="text-decoration-none text-muted">
+            <del>{{ task.title }}</del> - {{ task.due_datetime|date:"M d, Y H:i" }}
+        </a>
+    </li>
+    {% endif %}
+    {% empty %}
+    <li class="list-group-item text-muted">No completed tasks available.</li>
+    {% endfor %}
+</ul>
 {% endblock %}
