@@ -6,9 +6,19 @@
 <h1>Edit Task</h1>
 
 <!-- Task Edit Form -->
-<form method="post">
+<form method="post" novalidate>
     {% csrf_token %}
-    {{ form.as_p }}
+    {% for field in form %}
+        <div class="mb-3">
+            {{ field.label_tag }}
+            {{ field }}
+            {% if field.errors %}
+                <div class="text-danger">
+                    {{ field.errors|first }}
+                </div>
+            {% endif %}
+        </div>
+    {% endfor %}
     <button type="submit" class="btn btn-primary">Save Changes</button>
 </form>
 

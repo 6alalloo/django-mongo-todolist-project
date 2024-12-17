@@ -3,6 +3,9 @@
 {% block content %}
 <h1>Tasks</h1>
 
+<!-- Create Task Button -->
+<a href="{% url 'task_create' %}" class="btn btn-success mb-3">Create New Task</a>
+
 <!-- Search Bar -->
 <form method="get" class="mb-3">
     <div class="input-group">
@@ -74,7 +77,8 @@
     {% if task.status != 'Completed' %}
     <li class="list-group-item">
         <div class="d-flex justify-content-between align-items-center">
-            <a href="{% url 'task_detail' task.id %}" class="text-decoration-none">
+            <a href="{% url 'task_detail' task.id %}" 
+               class="text-decoration-none {% if task.is_overdue %}text-danger{% endif %}">
                 <strong>{{ task.title }}</strong> - {{ task.due_datetime|date:"M d, Y H:i" }}
             </a>
             <div>

@@ -4,6 +4,8 @@ from users.models import Department  # Ensure you import the correct Department 
 from django.forms.widgets import DateTimeInput
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
+from django.utils import timezone
+from django.core.exceptions import ValidationError
 
 
 class TaskForm(forms.ModelForm):
@@ -11,7 +13,7 @@ class TaskForm(forms.ModelForm):
         model = Task
         fields = ['title', 'description', 'priority', 'status', 'due_datetime', 'department', 'user', 'is_department_task']
         widgets = {
-            'due_datetime': DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
+            'due_datetime': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -40,6 +42,12 @@ class TaskForm(forms.ModelForm):
             if user and user.profile.department != self.user.profile.department:
                 raise forms.ValidationError("You can only assign tasks to users in your department.")
         return user
+
+    def clean_due_datetime(self):
+        due_datetime = self.cleaned_data.get('due_datetime')
+        if due_datetime and due_datetime < timezone.now():
+            raise ValidationError("Due date and time cannot be in the past.")
+        return due_datetime
 
 class SignupForm(UserCreationForm):
     email = forms.EmailField(required=True)

@@ -19,7 +19,7 @@ from django.forms.models import model_to_dict
 from .forms import SignupForm
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
-
+from django.utils import timezone
 
 def home(request):
     return render(request, 'tasks/home.html')
@@ -41,7 +41,7 @@ def tasks_view(request):
     sort_by = request.GET.get('sort')
     search_query = request.GET.get('q')
 
-    # Apply priority and status filters (these work fine)
+    # Apply priority and status filters
     if priority_filter:
         tasks = tasks.filter(priority=priority_filter)
     if status_filter:
@@ -54,6 +54,7 @@ def tasks_view(request):
     # Fetch all tasks first before filtering on is_department_task
     tasks_list = list(tasks)  # Convert to a list to filter in Python
 
+    # Filter for department-wide tasks in Python
     if department_task_filter is not None:
         if department_task_filter == "true":
             tasks_list = [task for task in tasks_list if task.is_department_task]
@@ -66,12 +67,15 @@ def tasks_view(request):
         sort_key = sort_by.lstrip('-')
         tasks_list = sorted(tasks_list, key=lambda x: getattr(x, sort_key, ''), reverse=reverse)
 
-    # Add delete permissions
+    # Add delete permissions and check for overdue tasks
     for task in tasks_list:
         task.can_delete = (
             task.user == user or 
             (user.profile.is_manager and task.department == user.profile.department)
         )
+        # Check if the task is overdue
+        task.is_overdue = task.due_datetime < timezone.now() and task.status != 'Completed'
+        print(f"Task: {task.title}, Due: {task.due_datetime}, Overdue: {task.is_overdue}")
 
     return render(request, 'tasks/tasks.html', {
         'tasks': tasks_list,
