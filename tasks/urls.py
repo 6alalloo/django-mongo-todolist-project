@@ -24,6 +24,7 @@ urlpatterns = [
     path('notifications/unread-count/', views.notifications_unread_count, name='notifications_unread_count'),
     path('notifications/<int:pk>/', views.notification_detail, name='notification_detail'),
     path('tasks/<int:pk>/complete/', views.complete_task, name='complete_task'),
+    path('dashboard/', views.dashboard_view, name='dashboard'),
 ]
 
 

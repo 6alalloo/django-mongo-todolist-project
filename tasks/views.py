@@ -277,3 +277,36 @@ def complete_task(request, pk):
     messages.success(request, f"Task '{task.title}' has been marked as completed.")
 
     return redirect('tasks')
+
+@login_required
+def dashboard_view(request):
+    user = request.user
+
+    # Base query: Managers see tasks for their department; users see their own tasks
+    if user.profile.is_manager:
+        tasks = Task.objects.filter(department=user.profile.department)
+    else:
+        tasks = Task.objects.filter(user=user)
+
+    # Task counts by status
+    task_counts = {
+        'Pending': tasks.filter(status='Pending').count(),
+        'In_Progress': tasks.filter(status='In Progress').count(),
+        'Completed': tasks.filter(status='Completed').count(),
+    }
+
+    # Overdue tasks
+    overdue_tasks = tasks.filter(due_datetime__lt=timezone.now(), status__in=['Pending', 'In Progress']).count()
+
+    # Tasks grouped by priority
+    priority_counts = {
+        'Low': tasks.filter(priority='Low').count(),
+        'Medium': tasks.filter(priority='Medium').count(),
+        'High': tasks.filter(priority='High').count(),
+    }
+
+    return render(request, 'tasks/dashboard.html', {
+        'task_counts': task_counts,
+        'overdue_tasks': overdue_tasks,
+        'priority_counts': priority_counts,
+    })

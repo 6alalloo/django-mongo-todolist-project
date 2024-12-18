@@ -30,8 +30,11 @@
                         <li class="nav-item">
                             <a class="nav-link" href="{% url 'signup' %}">Signup</a>
                         </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'dashboard' %}">Dashboard</a>
+                        </li>
                         <li class="nav-item dropdown">
-                            <a class="nav-link position-relative" href="{% url 'notifications' %}">
+                            <a class="nav-link position-right" href="{% url 'notifications' %}">
                                 🛎️
                                 <span id="notification-count" class="badge badge-danger position-absolute" style="top: 5px; right: 5px; display: none;">0</span>
                             </a>
