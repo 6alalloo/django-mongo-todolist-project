@@ -20,6 +20,8 @@ from .forms import SignupForm
 from django.contrib.auth import login
 from django.views.decorators.http import require_POST
 from django.utils import timezone
+import json
+from datetime import timedelta
 
 def home(request):
     return render(request, 'tasks/home.html')
@@ -293,6 +295,7 @@ def dashboard_view(request):
         'Pending': tasks.filter(status='Pending').count(),
         'In_Progress': tasks.filter(status='In Progress').count(),
         'Completed': tasks.filter(status='Completed').count(),
+        'Overdue': tasks.filter(due_datetime__lt=timezone.now(), status__in=['Pending', 'In Progress']).count(),
     }
 
     # Overdue tasks
@@ -305,8 +308,16 @@ def dashboard_view(request):
         'High': tasks.filter(priority='High').count(),
     }
 
+    # Upcoming Deadlines: Tasks due within the next 7 days
+    upcoming_deadlines = tasks.filter(
+        due_datetime__gte=timezone.now(),  # Tasks due from now...
+        due_datetime__lte=timezone.now() + timedelta(days=7),  # ... to 7 days in the future
+        status__in=['Pending', 'In Progress']  # Only tasks that are not completed
+    ).order_by('due_datetime')
+
     return render(request, 'tasks/dashboard.html', {
         'task_counts': task_counts,
         'overdue_tasks': overdue_tasks,
         'priority_counts': priority_counts,
+        'upcoming_deadlines': upcoming_deadlines,
     })

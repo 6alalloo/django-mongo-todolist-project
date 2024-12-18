@@ -2,75 +2,134 @@
 {% block title %}Dashboard{% endblock %}
 
 {% block content %}
-<h1 class="mb-4">Dashboard</h1>
+<div class="container mt-4">
+    <h1>{{ user.username }}'s Dashboard</h1>
 
-<!-- Task Status Overview -->
-<div class="row mb-4">
-    <div class="col-md-4">
-        <div class="card bg-primary text-white">
-            <div class="card-body">
-                <h5 class="card-title">Pending Tasks</h5>
-                <p class="card-text display-4">{{ task_counts.Pending }}</p>
+    <!-- Task Status Cards -->
+    <div class="row mb-4 justify-content-center">
+        <div class="col-md-3">
+            <div class="card bg-primary text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Pending Tasks</h5>
+                    <p class="card-text display-4">{{ task_counts.Pending }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-warning text-white">
+                <div class="card-body">
+                    <h5 class="card-title">In Progress Tasks</h5>
+                    <p class="card-text display-4">{{ task_counts.In_Progress }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-success text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Completed Tasks</h5>
+                    <p class="card-text display-4">{{ task_counts.Completed }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card bg-danger text-white">
+                <div class="card-body">
+                    <h5 class="card-title">Overdue Tasks</h5>
+                    <p class="card-text display-4">{{ task_counts.Overdue }}</p>
+                </div>
             </div>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-warning text-white">
-            <div class="card-body">
-                <h5 class="card-title">In Progress Tasks</h5>
-                <p class="card-text display-4">{{ task_counts.In_Progress }}</p>
-            </div>
+
+    <!-- Pie Charts -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <h3>Task Status Distribution</h3>
+            <canvas id="taskStatusChart" style="max-width: 300px; max-height: 300px; margin: auto;"></canvas>
+        </div>
+        <div class="col-md-6">
+            <h3>Task Priority Distribution</h3>
+            <canvas id="taskPriorityChart" style="max-width: 300px; max-height: 300px; margin: auto;"></canvas>
         </div>
     </div>
-    <div class="col-md-4">
-        <div class="card bg-success text-white">
-            <div class="card-body">
-                <h5 class="card-title">Completed Tasks</h5>
-                <p class="card-text display-4">{{ task_counts.Completed }}</p>
-            </div>
+
+    <!-- Upcoming Deadlines Table -->
+    <div class="row mt-5">
+        <div class="col-12">
+            <h3>Upcoming Deadlines (Next 7 Days)</h3>
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th>Title</th>
+                        <th>Due Date</th>
+                        <th>Status</th>
+                        <th>Priority</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for task in upcoming_deadlines %}
+                    <tr>
+                        <td>{{ task.title }}</td>
+                        <td>{{ task.due_datetime|date:"M d, Y H:i" }}</td>
+                        <td>{{ task.status }}</td>
+                        <td>{{ task.priority }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="4" class="text-center text-muted">No upcoming deadlines in the next 7 days.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
         </div>
     </div>
 </div>
 
-<!-- Overdue Tasks -->
-<div class="row mb-4">
-    <div class="col">
-        <div class="card bg-danger text-white">
-            <div class="card-body">
-                <h5 class="card-title">Overdue Tasks</h5>
-                <p class="card-text display-4">{{ overdue_tasks }}</p>
-            </div>
-        </div>
-    </div>
-</div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // Task Status Pie Chart
+    const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
+    const taskStatusChart = new Chart(taskStatusCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Pending', 'In Progress', 'Completed', 'Overdue'],
+            datasets: [{
+                data: [
+                    {{ task_counts.Pending }},
+                    {{ task_counts.In_Progress }},
+                    {{ task_counts.Completed }},
+                    {{ task_counts.Overdue }}
+                ],
+                backgroundColor: ['#007bff', '#ffc107', '#28a745', '#dc3545'],
+            }]
+        },
+        options: {
+            plugins: { legend: { position: 'top' } },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
 
-<!-- Tasks by Priority -->
-<h3>Task Priorities</h3>
-<div class="row">
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Low Priority</h5>
-                <p class="card-text display-4">{{ priority_counts.Low }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">Medium Priority</h5>
-                <p class="card-text display-4">{{ priority_counts.Medium }}</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-md-4">
-        <div class="card">
-            <div class="card-body">
-                <h5 class="card-title">High Priority</h5>
-                <p class="card-text display-4">{{ priority_counts.High }}</p>
-            </div>
-        </div>
-    </div>
-</div>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.min.js" integrity="sha512-L0Shl7nXXzIlBSUUPpxrokqq4ojqgZFQczTYlGjzONGTDAcLremjwaWv5A+EDLnxhQzY5xUZPWLOLqYRkY0Cbw==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    // Task Priority Pie Chart
+    const taskPriorityCtx = document.getElementById('taskPriorityChart').getContext('2d');
+    const taskPriorityChart = new Chart(taskPriorityCtx, {
+        type: 'pie',
+        data: {
+            labels: ['Low Priority', 'Medium Priority', 'High Priority'],
+            datasets: [{
+                data: [
+                    {{ priority_counts.Low }},
+                    {{ priority_counts.Medium }},
+                    {{ priority_counts.High }}
+                ],
+                backgroundColor: ['#6f42c1', '#ffc107', '#dc3545'],
+            }]
+        },
+        options: {
+            plugins: { legend: { position: 'top' } },
+            responsive: true,
+            maintainAspectRatio: false
+        }
+    });
+</script>
 {% endblock %}
