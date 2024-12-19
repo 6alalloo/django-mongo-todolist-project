@@ -1,0 +1,68 @@
+/* General Page Styling */
+body {
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: Arial, sans-serif;
+}
+
+/* Navbar */
+.navbar {
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
+
+.navbar-brand img {
+    margin-right: 10px;
+}
+
+.navbar-nav .nav-link {
+    transition: color 0.3s;
+}
+
+.navbar-nav .nav-link:hover {
+    color: #66a3ff !important;
+}
+
+/* Welcome Section */
+.welcome-section {
+    background: linear-gradient(to bottom right, #003366, #004080);
+    border-radius: 10px;
+    color: #ffffff;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+}
+
+.welcome-section h1 {
+    font-size: 3rem;
+    margin-bottom: 15px;
+}
+
+.welcome-section p {
+    font-size: 1.2rem;
+    margin-bottom: 20px;
+}
+
+.btn {
+    padding: 10px 20px;
+    font-size: 1.1rem;
+    border-radius: 5px;
+}
+
+/* Footer */
+footer {
+    font-size: 0.9rem;
+    box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
+    margin-top: auto;
+}
+
+/* Task List */
+/* Adjust table row padding */
+.table td, .table th {
+    vertical-align: middle;
+    padding: 10px;
+}
+
+/* Refine badge styles */
+.badge {
+    font-size: 0.9rem;
+    padding: 5px 10px;
+}
+

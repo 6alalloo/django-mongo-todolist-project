@@ -40,47 +40,54 @@ def tasks_view(request):
     priority_filter = request.GET.get('priority')
     status_filter = request.GET.get('status')
     department_task_filter = request.GET.get('department_task')
-    sort_by = request.GET.get('sort')
-    search_query = request.GET.get('q')
+    sort_by = request.GET.get('sort')  # Get sort option from query parameters
+    search_query = request.GET.get('q') or ""
 
     # Apply priority and status filters
-    if priority_filter:
+    if priority_filter and priority_filter != "Filter by Priority":
         tasks = tasks.filter(priority=priority_filter)
-    if status_filter:
+    if status_filter and status_filter != "Filter by Status":
         tasks = tasks.filter(status=status_filter)
 
     # Apply search query
     if search_query:
         tasks = tasks.filter(title__icontains=search_query)
 
-    # Fetch all tasks first before filtering on is_department_task
-    tasks_list = list(tasks)  # Convert to a list to filter in Python
+    # Apply department task filter
+    if department_task_filter == "true":
+        tasks = tasks.filter(is_department_task=True)
+    elif department_task_filter == "false":
+        tasks = tasks.filter(is_department_task=False)
 
-    # Filter for department-wide tasks in Python
-    if department_task_filter is not None:
-        if department_task_filter == "true":
-            tasks_list = [task for task in tasks_list if task.is_department_task]
-        elif department_task_filter == "false":
-            tasks_list = [task for task in tasks_list if not task.is_department_task]
+    # Sorting options
+    sort_mapping = {
+        "due_date_asc": "due_datetime",
+        "due_date_desc": "-due_datetime",
+        "title_asc": "title",
+        "title_desc": "-title",
+        "priority_asc": "priority",
+        "priority_desc": "-priority"
+    }
 
-    # Apply sorting
-    if sort_by:
-        reverse = sort_by.startswith('-')
-        sort_key = sort_by.lstrip('-')
-        tasks_list = sorted(tasks_list, key=lambda x: getattr(x, sort_key, ''), reverse=reverse)
+    # If no explicit sorting, default to earliest due date but set `sort_by` to ""
+    if sort_by in sort_mapping:
+        sort_field = sort_mapping[sort_by]
+    else:
+        sort_field = "due_datetime"
+        sort_by = ""  # Ensure "Sort by" is selected in the dropdown
+
+    tasks = tasks.order_by(sort_field)
 
     # Add delete permissions and check for overdue tasks
-    for task in tasks_list:
+    for task in tasks:
         task.can_delete = (
             task.user == user or 
             (user.profile.is_manager and task.department == user.profile.department)
         )
-        # Check if the task is overdue
         task.is_overdue = task.due_datetime < timezone.now() and task.status != 'Completed'
-        print(f"Task: {task.title}, Due: {task.due_datetime}, Overdue: {task.is_overdue}")
 
     return render(request, 'tasks/tasks.html', {
-        'tasks': tasks_list,
+        'tasks': tasks,
         'priority_filter': priority_filter,
         'status_filter': status_filter,
         'department_task_filter': department_task_filter,
