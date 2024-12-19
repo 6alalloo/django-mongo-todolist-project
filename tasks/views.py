@@ -22,6 +22,7 @@ from django.views.decorators.http import require_POST
 from django.utils import timezone
 import json
 from datetime import timedelta
+from django.utils.timezone import now
 
 def home(request):
     return render(request, 'tasks/home.html')
@@ -191,16 +192,25 @@ class CustomLoginView(LoginView):
     def get_success_url(self):
         return reverse('tasks')
     
+@login_required
 def calendar_data(request):
-    tasks = Task.objects.filter(user=request.user) if not request.user.profile.is_manager else Task.objects.all()
-    events = []
+    user = request.user
+    if user.profile.is_manager:
+        tasks = Task.objects.filter(department=user.profile.department)
+    else:
+        tasks = Task.objects.filter(user=user)
 
+    events = []
+    
     for task in tasks:
+        is_overdue = task.status != "Completed" and task.due_datetime < now()
         events.append({
-            'title': task.title,
-            'start': task.due_datetime.isoformat(),  # Format date for FullCalendar
-            'url': f"/tasks/{task.id}/",  # Link to the task detail page
-            'color': 'red' if task.priority == 'High' else 'blue',
+            "title": task.title,
+            "start": task.due_datetime.isoformat(),
+            "url": f"/tasks/{task.id}/",
+            "color": "red" if is_overdue else "blue",
+            "priority": task.priority,
+            "description": task.description or "No description provided.",
         })
 
     return JsonResponse(events, safe=False)
