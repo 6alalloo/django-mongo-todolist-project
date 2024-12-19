@@ -139,33 +139,32 @@ def task_create_view(request):
     else:
         form = TaskForm(user=request.user)
 
-    return render(request, 'tasks/task_form.html', {'form': form})
+    return render(request, 'tasks/task_form.html', {'form': form, 'title': 'Create Task'})
 
+@login_required
 @login_required
 def task_edit_view(request, pk):
     task = get_object_or_404(Task, pk=pk)
-    if request.method == 'POST':
-        form = TaskForm(request.POST, instance=task)
+    can_delete = (
+        task.user == request.user or
+        (request.user.profile.is_manager and task.department == request.user.profile.department)
+    )
+
+    if request.method == "POST":
+        form = TaskForm(request.POST, instance=task, user=request.user)
         if form.is_valid():
-            updated_task = form.save()
-
-            # Notify the user about task updates
-            if updated_task.user:  # Ensure the task has an assigned user
-                Notification.objects.create(
-                    user=updated_task.user,
-                    title="Task Updated",
-                    message=f"The task '{updated_task.title}' has been updated.",
-                    task=updated_task,
-                )
-
-            return redirect('tasks')  # Redirect to the task list page
+            form.save()
+            messages.success(request, "Task has been updated successfully.")
+            return redirect('tasks')
     else:
-        form = TaskForm(instance=task)
-        can_delete = (
-            task.user == request.user or 
-            (request.user.profile.is_manager and task.department == request.user.profile.department)
-        )
-    return render(request, 'tasks/task_form.html', {'form': form, 'task': task, 'action': 'Edit', 'can_delete': can_delete})
+        form = TaskForm(instance=task, user=request.user)
+
+    return render(
+        request,
+        'tasks/task_form.html',
+        {'form': form, 'task': task, 'action': 'Edit', 'can_delete': can_delete, 'title': 'Edit Task'}
+    )
+
 def delete_task(request, pk):
     task = get_object_or_404(Task, pk=pk)
 

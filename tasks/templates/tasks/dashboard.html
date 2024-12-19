@@ -8,7 +8,7 @@
     <!-- Task Status Cards -->
     <div class="row mb-4 justify-content-center">
         <div class="col-md-3">
-            <div class="card bg-primary text-white">
+            <div class="card bg-dark text-info">
                 <div class="card-body">
                     <h5 class="card-title">Pending Tasks</h5>
                     <p class="card-text display-4">{{ task_counts.Pending }}</p>
@@ -16,7 +16,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-warning text-white">
+            <div class="card bg-dark text-warning">
                 <div class="card-body">
                     <h5 class="card-title">In Progress Tasks</h5>
                     <p class="card-text display-4">{{ task_counts.In_Progress }}</p>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-success text-white">
+            <div class="card bg-dark text-success">
                 <div class="card-body">
                     <h5 class="card-title">Completed Tasks</h5>
                     <p class="card-text display-4">{{ task_counts.Completed }}</p>
@@ -32,7 +32,7 @@
             </div>
         </div>
         <div class="col-md-3">
-            <div class="card bg-danger text-white">
+            <div class="card bg-dark text-danger">
                 <div class="card-body">
                     <h5 class="card-title">Overdue Tasks</h5>
                     <p class="card-text display-4">{{ task_counts.Overdue }}</p>
@@ -44,11 +44,11 @@
     <!-- Pie Charts -->
     <div class="row mb-4">
         <div class="col-md-6">
-            <h3>Task Status Distribution</h3>
+            <h3 class="text-white">Task Status Distribution</h3>
             <canvas id="taskStatusChart" style="max-width: 300px; max-height: 300px; margin: auto;"></canvas>
         </div>
         <div class="col-md-6">
-            <h3>Task Priority Distribution</h3>
+            <h3 class="text-white">Task Priority Distribution</h3>
             <canvas id="taskPriorityChart" style="max-width: 300px; max-height: 300px; margin: auto;"></canvas>
         </div>
     </div>
@@ -56,9 +56,9 @@
     <!-- Upcoming Deadlines Table -->
     <div class="row mt-5">
         <div class="col-12">
-            <h3>Upcoming Deadlines (Next 7 Days)</h3>
-            <table class="table table-bordered table-hover">
-                <thead class="table-light">
+            <h3 class="text-white">Upcoming Deadlines (Next 7 Days)</h3>
+            <table class="table table-dark table-hover">
+                <thead class="bg-primary text-white">
                     <tr>
                         <th>Title</th>
                         <th>Due Date</th>
@@ -104,7 +104,7 @@
             }]
         },
         options: {
-            plugins: { legend: { position: 'top' } },
+            plugins: { legend: { position: 'top', labels: { color: '#ffffff' } } },
             responsive: true,
             maintainAspectRatio: false
         }
@@ -126,7 +126,7 @@
             }]
         },
         options: {
-            plugins: { legend: { position: 'top' } },
+            plugins: { legend: { position: 'top', labels: { color: '#ffffff' } } },
             responsive: true,
             maintainAspectRatio: false
         }

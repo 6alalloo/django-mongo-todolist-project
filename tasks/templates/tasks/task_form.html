@@ -1,34 +1,102 @@
 {% extends 'tasks/base.html' %}
 
-{% block title %}Edit Task{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 
 {% block content %}
-<h1>Edit Task</h1>
-
-<!-- Task Edit Form -->
-<form method="post" novalidate>
-    {% csrf_token %}
-    {% for field in form %}
-        <div class="mb-3">
-            {{ field.label_tag }}
-            {{ field }}
-            {% if field.errors %}
-                <div class="text-danger">
-                    {{ field.errors|first }}
-                </div>
-            {% endif %}
+<div class="container mt-5">
+    <div class="card bg-dark text-light shadow-lg">
+        <div class="card-header text-center bg-primary text-white">
+            <h3 class="m-0">{{ title }}</h3>
         </div>
-    {% endfor %}
-    <button type="submit" class="btn btn-primary">Save Changes</button>
-</form>
+        <div class="card-body">
+            <form method="post" novalidate class="p-3">
+                {% csrf_token %}
+                <div class="row">
+                    <!-- Title -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_title" class="form-label">Title</label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <div class="text-danger mt-1">{{ form.title.errors|first }}</div>
+                        {% endif %}
+                    </div>
 
-<!-- Delete Button -->
-{% if can_delete %}
-<form action="{% url 'delete_task' task.id %}" method="post" style="margin-top: 20px;" onsubmit="return confirm('Are you sure you want to delete this task?');">
-    {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Delete Task</button>
-</form>
-{% endif %}
+                    <!-- Description -->
+                    <div class="col-md-12 mb-3">
+                        <label for="id_description" class="form-label">Description</label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <div class="text-danger mt-1">{{ form.description.errors|first }}</div>
+                        {% endif %}
+                    </div>
 
-<a href="{% url 'tasks' %}" class="btn btn-secondary mt-3">Back to Tasks</a>
+                    <!-- Priority -->
+                    <div class="col-md-4 mb-3">
+                        <label for="id_priority" class="form-label">Priority</label>
+                        {{ form.priority }}
+                        {% if form.priority.errors %}
+                        <div class="text-danger mt-1">{{ form.priority.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Status -->
+                    <div class="col-md-4 mb-3">
+                        <label for="id_status" class="form-label">Status</label>
+                        {{ form.status }}
+                        {% if form.status.errors %}
+                        <div class="text-danger mt-1">{{ form.status.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Due Date -->
+                    <div class="col-md-4 mb-3">
+                        <label for="id_due_datetime" class="form-label">Due Date</label>
+                        {{ form.due_datetime }}
+                        {% if form.due_datetime.errors %}
+                        <div class="text-danger mt-1">{{ form.due_datetime.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Department -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_department" class="form-label">Department</label>
+                        {{ form.department }}
+                        {% if form.department.errors %}
+                        <div class="text-danger mt-1">{{ form.department.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- User -->
+                    <div class="col-md-6 mb-3">
+                        <label for="id_user" class="form-label">Assigned User</label>
+                        {{ form.user }}
+                        {% if form.user.errors %}
+                        <div class="text-danger mt-1">{{ form.user.errors|first }}</div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Is Department Task -->
+                    <div class="col-md-12 mb-3">
+                        <div class="form-check">
+                            {{ form.is_department_task }}
+                            <label for="id_is_department_task" class="form-check-label">Is Department Task</label>
+                        </div>
+                        {% if form.is_department_task.errors %}
+                        <div class="text-danger mt-1">{{ form.is_department_task.errors|first }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-success w-100 py-2">
+                    {% if title == "Edit Task" %}
+                    Save Changes
+                    {% else %}
+                    Create Task
+                    {% endif %}
+                </button>
+            </form>
+        </div>
+    </div>
+    <a href="{% url 'tasks' %}" class="btn btn-secondary mt-3 w-100">Back to Tasks</a>
+</div>
 {% endblock %}
