@@ -3,7 +3,7 @@ from .models import Task, Notification
 
 
 
-
+admin.site.site_header = 'To Do List Admin - 6alal'
 admin.site.register(Task)
 @admin.register(Notification)
 class NotificationAdmin(admin.ModelAdmin):
