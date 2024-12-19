@@ -3,20 +3,40 @@
 {% block title %}Login{% endblock %}
 
 {% block content %}
-<h2>Login</h2>
-
-{% if request.GET.next %}
-<p class="text-warning">
-    You must log in to access "{{ request.GET.next }}".
-</p>
-{% endif %}
-
-<form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Login</button>
-</form>
-{% if form.errors %}
-<p class="text-danger">Invalid username or password. Please try again.</p>
-{% endif %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6"> <!-- Adjust this column width to make it less wide -->
+            <div class="card bg-dark text-light shadow-lg">
+                <div class="card-header text-center bg-primary text-white">
+                    <h3 class="m-0">Login to Your Account</h3>
+                </div>
+                <div class="card-body">
+                    {% if request.GET.next %}
+                    <p class="text-warning text-center">
+                        You must log in to access "{{ request.GET.next }}".
+                    </p>
+                    {% endif %}
+                    <form method="post" class="p-3">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username</label>
+                            <input type="text" name="username" id="id_username" class="form-control custom-input" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="id_password" class="form-label">Password</label>
+                            <input type="password" name="password" id="id_password" class="form-control custom-input" required>
+                        </div>
+                        <button type="submit" class="btn btn-success w-100 py-2">Login</button>
+                    </form>
+                    {% if form.errors %}
+                    <p class="text-danger text-center mt-3">Invalid username or password. Please try again.</p>
+                    {% endif %}
+                </div>
+                <div class="card-footer text-center">
+                    <p class="m-0">Don't have an account? <a href="{% url 'signup' %}" class="text-primary">Sign up here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}

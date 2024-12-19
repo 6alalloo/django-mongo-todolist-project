@@ -70,9 +70,14 @@
                     <tr>
                         <!-- Title -->
                         <td>
-                            <strong class="{% if task.is_overdue %}text-danger{% else %}text-info{% endif %}">
-                                {{ task.title }}
-                            </strong>
+                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                <strong class="{% if task.is_overdue %}text-danger{% else %}text-info{% endif %}">
+                                    {{ task.title }}
+                                    {% if task.is_department_task %}
+                                    <span class="badge bg-primary ms-2">Dept-Wide</span>
+                                    {% endif %}
+                                </strong>
+                            </a>
                         </td>
                         
                         <!-- Due Date -->
@@ -91,7 +96,10 @@
                         <!-- Actions -->
                         <td class="text-end">
                             <div class="btn-group">
-                                <a href="{% url 'complete_task' task.pk %}" class="btn btn-sm btn-success">Complete</a>
+                                <form action="{% url 'complete_task' task.pk %}" method="post" style="display:inline;" onsubmit="return confirm('Are you sure you want to mark this task as completed?');">
+                                    {% csrf_token %}
+                                    <button type="submit" class="btn btn-sm btn-success">Complete</button>
+                                </form>
                                 <a href="{% url 'task_edit' task.pk %}" class="btn btn-sm btn-warning">Edit</a>
                                 <a href="{% url 'delete_task' task.pk %}" class="btn btn-sm btn-danger">Delete</a>
                             </div>
@@ -127,7 +135,14 @@
                     <tr>
                         <!-- Title -->
                         <td>
-                            <strong class="text-success">{{ task.title }}</strong>
+                            <a href="{% url 'task_detail' task.pk %}" class="text-decoration-none">
+                                <strong class="text-success">
+                                    {{ task.title }}
+                                    {% if task.is_department_task %}
+                                    <span class="badge bg-primary ms-2">Dept-Wide</span>
+                                    {% endif %}
+                                </strong>
+                            </a>
                         </td>
                         
                         <!-- Completion Date -->
