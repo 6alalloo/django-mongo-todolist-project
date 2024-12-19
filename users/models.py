@@ -7,11 +7,16 @@ class Department(models.Model):
     def __str__(self):
         return self.name
 
+
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='profile')
-    department = models.ForeignKey(Department, on_delete=models.CASCADE, null=True, blank=True)
-    is_manager = models.BooleanField(default=False)  # Role-based flag
+    user = models.OneToOneField(
+        User, on_delete=models.CASCADE, related_name="profile"
+    )
+    department = models.ForeignKey(
+        Department, null=True, blank=True, on_delete=models.SET_NULL
+    )
+    is_manager = models.BooleanField(default=False)
 
     def __str__(self):
-        return f"{self.user.username} - {'Manager' if self.is_manager else 'User'}"
+        return f"{self.user.username}'s Profile"
 

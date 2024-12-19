@@ -63,11 +63,3 @@ class Notification(models.Model):
     def __str__(self):
         return f"Notification for {self.user.username}: {self.title}"
     
-class Profile(models.Model):
-    # user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="profile")
-    department = models.ForeignKey(Department, null=True, blank=True, on_delete=models.SET_NULL)
-    is_manager = models.BooleanField(default=False)
-    related_name="profile"
-
-    def __str__(self):
-        return f"{self.user.username}'s Profile"

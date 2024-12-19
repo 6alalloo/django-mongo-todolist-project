@@ -6,6 +6,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from users.models import Profile
 
 
 class TaskForm(forms.ModelForm):
@@ -50,26 +51,42 @@ class TaskForm(forms.ModelForm):
         return due_datetime
 
 class SignupForm(UserCreationForm):
-    email = forms.EmailField(required=True)
-    department = forms.ModelChoiceField(
-        queryset=Department.objects.all(), 
-        required=False, 
-        empty_label="None", 
-        label="Department"
+    email = forms.EmailField(
+        required=True,
+        widget=forms.EmailInput(attrs={"class": "form-control"})
     )
-    is_manager = forms.BooleanField(required=False, label="Is Department Manager?")
+    department = forms.ModelChoiceField(
+        queryset=Department.objects.all(),
+        required=False,
+        empty_label="None",
+        label="Department",
+        widget=forms.Select(attrs={"class": "form-control"})
+    )
+    is_manager = forms.BooleanField(
+        required=False,
+        label="Is Department Manager?",
+        widget=forms.CheckboxInput(attrs={"class": "form-check-input"})
+    )
 
     class Meta:
         model = User
         fields = ['username', 'email', 'password1', 'password2', 'department', 'is_manager']
+        widgets = {
+            "username": forms.TextInput(attrs={"class": "form-control"}),
+            "password1": forms.PasswordInput(attrs={"class": "form-control"}),
+            "password2": forms.PasswordInput(attrs={"class": "form-control"}),
+        }
 
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
-            user.save()
-            # Custom logic to link department and manager status
-            profile = user.profile  # Assuming a OneToOne field to Profile
-            profile.department = self.cleaned_data['department']
-            profile.is_manager = self.cleaned_data['is_manager']
-            profile.save()
+            user.save()  # Save the user instance
+
+            # Create and associate the Profile
+            Profile.objects.create(
+                user=user,
+                is_manager=self.cleaned_data['is_manager'],
+                department=self.cleaned_data['department']
+            )
+
         return user

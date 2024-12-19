@@ -1,8 +1,19 @@
 /* General Page Styling */
+html, body {
+    height: 100%;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
 body {
-    background-color: #121212;
-    color: #e0e0e0;
-    font-family: Arial, sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+    margin-bottom: 20px; /* Adjust this value as needed */
 }
 
 /* Navbar */
@@ -46,17 +57,16 @@ body {
     border-radius: 5px;
 }
 
-/* Footer */
 footer {
-    font-size: 0.9rem;
+    background: #003366;
+    color: white;
+    text-align: center;
+    padding: 10px;
     box-shadow: 0 -2px 4px rgba(0, 0, 0, 0.2);
     margin-top: auto;
-    width: 100%;
-    position: fixed;
 }
 
 /* Task List */
-/* Adjust table row padding */
 .table td, .table th {
     vertical-align: middle;
     padding: 10px;
@@ -68,3 +78,92 @@ footer {
     padding: 5px 10px;
 }
 
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+/* Form Labels and Inputs */
+form .form-label {
+    font-weight: bold;
+    color: #e0e0e0;
+}
+
+form .form-control, form .form-select, form .form-check-input {
+    background-color: #222;
+    color: #e0e0e0;
+    border: 1px solid #444;
+    border-radius: 5px;
+}
+
+form .form-control:focus, form .form-select:focus, form .form-check-input:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+}
+
+/* Form Buttons */
+form button[type="submit"] {
+    background: linear-gradient(to right, #28a745, #218838);
+    border: none;
+    transition: background-color 0.3s;
+}
+
+form button[type="submit"]:hover {
+    background: linear-gradient(to right, #218838, #1e7e34);
+}
+
+/* Card Header */
+.card-header {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 15px;
+}
+
+.custom-input, .custom-select {
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    color: #e0e0e0;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.custom-input:focus, .custom-select:focus {
+    border-color: #66a3ff;
+    box-shadow: 0 0 6px rgba(102, 163, 255, 0.8);
+    outline: none;
+}
+
+/* Form Labels */
+.form-label {
+    font-size: 1rem;
+    color: #e0e0e0;
+    font-weight: bold;
+}
+
+/* Form Check (Checkbox Styling) */
+.form-check-input {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 5px;
+    background-color: #1a1a1a;
+    border: 1px solid #333;
+    transition: border-color 0.3s;
+}
+
+.form-check-input:checked {
+    background-color: #66a3ff;
+    border-color: #66a3ff;
+}
+
+.form-check-label {
+    font-size: 1rem;
+    color: #e0e0e0;
+    margin-left: 5px;
+}
+
+#password-requirements {
+    color: white;
+}
