@@ -5,7 +5,6 @@
 <div class="container mt-4">
     <h1>{{ user.username }}'s Dashboard</h1>
 
-    <!-- Task Status Cards -->
     <div class="row mb-4 justify-content-center">
         <div class="col-md-3">
             <div class="card bg-dark text-info">
@@ -41,7 +40,6 @@
         </div>
     </div>
 
-    <!-- Pie Charts -->
     <div class="row mb-4">
         <div class="col-md-6">
             <h3 class="text-white">Task Status Distribution</h3>
@@ -53,7 +51,6 @@
         </div>
     </div>
 
-    <!-- Upcoming Deadlines Table -->
     <div class="row mt-5">
         <div class="col-12">
             <h3 class="text-white">Upcoming Deadlines (Next 7 Days)</h3>
@@ -87,7 +84,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-    // Task Status Pie Chart
     const taskStatusCtx = document.getElementById('taskStatusChart').getContext('2d');
     const taskStatusChart = new Chart(taskStatusCtx, {
         type: 'pie',
@@ -110,7 +106,6 @@
         }
     });
 
-    // Task Priority Pie Chart
     const taskPriorityCtx = document.getElementById('taskPriorityChart').getContext('2d');
     const taskPriorityChart = new Chart(taskPriorityCtx, {
         type: 'pie',

@@ -59,7 +59,6 @@
         const requirements = document.getElementById("password-requirements");
         const matchWarning = document.getElementById("password-match");
 
-        // Show password requirements dynamically
         password1.addEventListener("input", function () {
             if (password1.value.length > 0) {
                 requirements.classList.remove("d-none");
@@ -68,7 +67,6 @@
             }
         });
 
-        // Check password matching dynamically
         password2.addEventListener("input", function () {
             if (password1.value !== password2.value && password2.value.length > 0) {
                 matchWarning.classList.remove("d-none");
@@ -77,7 +75,6 @@
             }
         });
 
-        // Hide match warning if password1 changes and passwords no longer match
         password1.addEventListener("input", function () {
             if (password1.value === password2.value) {
                 matchWarning.classList.add("d-none");

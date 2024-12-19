@@ -79,7 +79,7 @@ WSGI_APPLICATION = 'todolist_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'djongo',
-        'NAME': 'TDLdb',  # Replace with your desired database name
+        'NAME': 'TDLdb',  
         'CLIENT': {
             'host': 'localhost',
             'port': 27017,
@@ -127,7 +127,7 @@ STATIC_URL = 'static/'
 
 STATICFILES_DIRS = [BASE_DIR / "tasks/static"]
 
-STATICFILES_DIRS = [  # List of folders for static files during development
+STATICFILES_DIRS = [  
     os.path.join(BASE_DIR, 'static'),  
 ]
 

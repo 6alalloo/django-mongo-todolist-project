@@ -3,31 +3,31 @@ from django.contrib.auth.models import User
 
 
 class Task(models.Model):
-    title = models.CharField(max_length=255)  # Task title
-    description = models.TextField(blank=True, null=True)  # Optional description
+    title = models.CharField(max_length=255) 
+    description = models.TextField(blank=True, null=True) 
     priority = models.CharField(
         max_length=10,
         choices=[('Low', 'Low'), ('Medium', 'Medium'), ('High', 'High')],
         default='Medium'
-    )  # Task priority
+    )  
     due_datetime = models.DateTimeField()
     status = models.CharField(
         max_length=20,
         choices=[('Pending', 'Pending'), ('In Progress', 'In Progress'), ('Completed', 'Completed')],
         default='Pending'
-    )  # Task status
-    created_at = models.DateTimeField(auto_now_add=True)  # Automatically set when created
-    updated_at = models.DateTimeField(auto_now=True)  # Automatically updated on save
+    )  
+    created_at = models.DateTimeField(auto_now_add=True)  
+    updated_at = models.DateTimeField(auto_now=True)  
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     department = models.ForeignKey('users.Department', on_delete=models.CASCADE, null=True, blank=True)
     is_department_task = models.BooleanField(default=False)
     user = models.ForeignKey(
-    'auth.User',  # Link to Django's built-in User model
-    on_delete=models.SET_NULL,  # Set user to NULL when the user is deleted
-    null=True,  # Allow NULL values
+    'auth.User',  
+    on_delete=models.SET_NULL, 
+    null=True, 
     blank=True
     )
-    is_department_task = models.BooleanField(default=False)# Allow this field to be empty in forms
+    is_department_task = models.BooleanField(default=False)
     created_by = models.ForeignKey(
     'auth.User',
     on_delete=models.CASCADE,
@@ -52,7 +52,7 @@ class Notification(models.Model):
     message = models.TextField()
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True)  # This line
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, null=True, blank=True) 
     
 
     class Meta:

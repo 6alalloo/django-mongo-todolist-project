@@ -1,6 +1,6 @@
 from django import forms
 from .models import Task
-from users.models import Department  # Ensure you import the correct Department model
+from users.models import Department  
 from django.forms.widgets import DateTimeInput
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import UserCreationForm
@@ -51,17 +51,14 @@ class TaskForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
-        self.user = kwargs.pop('user', None)  # Get the logged-in user
+        self.user = kwargs.pop('user', None)  
         super().__init__(*args, **kwargs)
 
-        # Restrict department and user options based on the logged-in user's role
         if self.user and not self.user.profile.is_manager:
-            # Normal users see only their own department
             self.fields['department'].queryset = Department.objects.filter(id=self.user.profile.department.id)
-            self.fields['is_department_task'].widget = forms.HiddenInput()  # Hide department-wide field for normal users
-            self.fields['user'].widget = forms.HiddenInput()  # Hide user field for normal users
+            self.fields['is_department_task'].widget = forms.HiddenInput() 
+            self.fields['user'].widget = forms.HiddenInput() 
         elif self.user:
-            # Managers see all departments
             self.fields['department'].queryset = Department.objects.all()
 
     def clean_user(self):
@@ -108,9 +105,8 @@ class SignupForm(UserCreationForm):
     def save(self, commit=True):
         user = super().save(commit=False)
         if commit:
-            user.save()  # Save the user instance
+            user.save()
 
-            # Create and associate the Profile
             Profile.objects.create(
                 user=user,
                 is_manager=self.cleaned_data['is_manager'],

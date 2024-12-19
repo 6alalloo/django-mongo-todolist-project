@@ -13,7 +13,6 @@
 <h1>Task Calendar</h1>
 <div id="calendar"></div>
 
-<!-- FullCalendar Script -->
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         var calendarEl = document.getElementById('calendar');
@@ -25,20 +24,17 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay'
             },
-            // Limit the visible range of the calendar
             visibleRange: function (currentDate) {
-                // Calculate start (1st of the current month) and end date (+5 days from the current month)
                 var start = new Date(currentDate.getFullYear(), currentDate.getMonth(), 1);
-                var end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 2); // Adjust "5" to control extra days
+                var end = new Date(currentDate.getFullYear(), currentDate.getMonth() + 1, 2);
                 return { start: start, end: end };
             },
             eventContent: function (info) {
-                // Check for overdue tasks to set the text color
                 let textColor = info.event.backgroundColor === 'red' ? 'red' : 'blue';
                 return {
                     html: `
                         <div style="color: ${textColor};">
-                            &#9679; ${info.event.title} <!-- HTML Entity for the dot -->
+                            &#9679; ${info.event.title}
                         </div>
                     `
                 };
@@ -81,7 +77,6 @@
     });
 </script>
 
-<!-- Legend -->
 <div class="mt-3">
     <h5 class="text-white">Legend:</h5>
     <ul class="list-unstyled d-flex gap-3">

@@ -3,24 +3,41 @@
 {% block title %}Notifications{% endblock %}
 
 {% block content %}
-<h1>Notifications</h1>
+<div class="container mt-4">
+    <h1>Notifications</h1>
 
-<form method="post">
-    {% csrf_token %}
-    <button type="submit" name="mark_as_read" class="btn btn-primary mb-3">Mark All as Read</button>
-</form>
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="mark_as_read" class="btn btn-success mb-3">Mark All as Read</button>
+    </form>
 
-<ul class="list-group">
-    {% for notification in notifications %}
-        <li class="list-group-item {% if not notification.is_read %}list-group-item-warning{% endif %}">
-            <a href="{% url 'notification_detail' notification.pk %}" 
-                class="text-decoration-none {% if not notification.is_read %}fw-bold{% endif %}">
-                {{ notification.title }}
-            </a>
-            <small class="text-muted"> - {{ notification.created_at|date:"M d, Y H:i" }}</small>
-        </li>
-    {% empty %}
-        <li class="list-group-item">No notifications.</li>
-    {% endfor %}
-</ul>
+    <!-- Notifications Table -->
+    <table class="table table-dark table-bordered">
+        <thead>
+            <tr>
+                <th>Notification</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for notification in notifications %}
+                <tr>
+                    <td>
+                        <a href="{% url 'notification_detail' notification.pk %}" 
+                            class="text-decoration-none {% if not notification.is_read %}fw-bold text-info{% endif %}">
+                            {{ notification.title }}
+                        </a>
+                    </td>
+                    <td>
+                        <span class="timestamp">{{ notification.created_at|date:"M d, Y H:i" }}</span>
+                    </td>
+                </tr>
+            {% empty %}
+                <tr>
+                    <td colspan="2" class="text-center text-muted">No notifications available.</td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
 {% endblock %}
