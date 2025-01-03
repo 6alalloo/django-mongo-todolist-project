@@ -8,6 +8,7 @@ Run "python -m venv TDLenv"
 open the virtual environment with "TDLenv/Scripts/activate"
 change directory with "cd todolist_project"
 run "pip install -r requirements.txt" to get all the necessary dependancies
+in a seperate terminal, enter the virtual environment, change to todolist_project, and run the command "mongod" to have the database running in the background.
 create a superuser with "python manage.py createsuperuser"
 after creating the superuser, log in to the admin page by running "python manage.py runserver" and then adding /admin to the end of the url.
 "127.0.0.1:8000/admin"
