@@ -1,14 +1,19 @@
 Ensure Python and MongoDB are installed on the PC.
 ensure the environment variable "C:\Program Files\MongoDB\Server\8.0\bin" is set in the machine's environment variables
 # Change the 8.0 to whatever version of MongoDB you have.
+ensure the directory for the MongoDB database exists, if not, create it with (for example)"mkdir C:\data\db"
 
 
-open the ToDoListProject folder.
+
+
+open the Main folder.
 Run "python -m venv TDLenv"
 open the virtual environment with "TDLenv/Scripts/activate"
-change directory with "cd todolist_project"
 run "pip install -r requirements.txt" to get all the necessary dependancies
+# if pip is buggy, run "python -m pip install --force-reinstall pip"
 in a seperate terminal, enter the virtual environment, change to todolist_project, and run the command "mongod" to have the database running in the background.
+in a 3rd terminal, run the command "mongosh" to connect to the mongo shell and the database. 
+after connecting to the mongo shell, run "use TDLdb"
 create a superuser with "python manage.py createsuperuser"
 after creating the superuser, log in to the admin page by running "python manage.py runserver" and then adding /admin to the end of the url.
 "127.0.0.1:8000/admin"
